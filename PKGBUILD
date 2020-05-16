@@ -3,7 +3,7 @@
 
 pkgname=oblogout
 pkgver=0.2
-pkgrel=19
+pkgrel=20
 pkgdesc='Openbox logout script'
 arch=('any')
 url='https://launchpad.net/oblogout'
@@ -14,11 +14,13 @@ backup=('etc/oblogout.conf')
 source=("https://launchpad.net/oblogout/$pkgver/$pkgver.0/+download/$pkgname-$pkgver.tar.bz2"
         'oblogout.patch'
         "$pkgname.conf"
-        'ru.po')
+        'ru.po'
+        'oblogout-multihead.patch')
 sha256sums=('f80003b85e9f4f1c588675453ea03f40a86fc50546d509ceb69706eb045782a9'
             'cea52a14df0ef924fcdd63b2e82c14b94cc2a7753994c176621ace9502bd9109'
             '4a88dbe52d0fbb6563b689e22fde3face5934e25a4c4652d98b971025ca4ed2b'
-            'aa8504055ec1e0661c3588cde85aad3267ffa7a42414c106e6ce8bff71f9d883')
+            'aa8504055ec1e0661c3588cde85aad3267ffa7a42414c106e6ce8bff71f9d883'
+            'c4445ec8affeba828a7bcadc461e38c37746c37b1d5eb06de419536ad23f830c')
 
 prepare() {
   cd "$pkgname"
@@ -27,6 +29,7 @@ prepare() {
   sed -i 's/fromstring/frombytes/' oblogout/__init__.py # FS#46587
   sed -i '0,/on/s//on2/' "$pkgname"/*.py
   cp "$srcdir/ru.po" po
+  patch -p2 -i ../oblogout-multihead.patch
 }
 
 package() {

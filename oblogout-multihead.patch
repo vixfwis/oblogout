@@ -1,0 +1,81 @@
+diff -ru src.orig/oblogout/data/oblogout.conf src.new/oblogout/data/oblogout.conf
+--- src.orig/oblogout/data/oblogout.conf	2009-04-11 16:14:27.000000000 +0400
++++ src.new/oblogout/data/oblogout.conf	2020-05-16 10:08:30.618711000 +0300
+@@ -1,5 +1,6 @@
+ [settings]
+ usehal = true
++monitor = -1
+ 
+ [looks]
+ opacity = 70
+diff -ru src.orig/oblogout/oblogout/__init__.py src.new/oblogout/oblogout/__init__.py
+--- src.orig/oblogout/oblogout/__init__.py	2020-05-16 10:07:19.244112419 +0300
++++ src.new/oblogout/oblogout/__init__.py	2020-05-16 10:14:20.074220189 +0300
+@@ -127,13 +127,29 @@
+          
+         for button in self.button_list:
+             self.__add_button(button, self.buttonpanel)        
+-                                          
++
++        # Multihead
++        screen = self.window.get_screen()
++        if self.mon == -1:
++            active_window = screen.get_active_window()
++            if active_window is not None:
++                self.mon = screen.get_monitor_at_window(active_window)
++            else:
++                self.mon = 0  # fallback
++                pointer = gtk.gdk.get_default_root_window().get_pointer()  # try to find corrent mon by mouse pointer
++                for m in range(screen.get_n_monitors()):
++                    geometry_mon = screen.get_monitor_geometry(m)
++                    if pointer[0] >= geometry_mon[0] and pointer[0] < geometry_mon[0]+geometry_mon[2] and \
++                       pointer[1] >= geometry_mon[1] and pointer[1] < geometry_mon[1]+geometry_mon[3]:
++                        self.mon = m
++                        break
++        geometry = screen.get_monitor_geometry(self.mon)
++
+         if self.rendered_effects == True:    
+             self.logger.debug("Stepping though render path")
+             w = gtk.gdk.get_default_root_window()
+-            sz = w.get_size()
+-            pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,sz[0],sz[1])
+-            pb = pb.get_from_drawable(w,w.get_colormap(),0,0,0,0,sz[0],sz[1])
++            pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,geometry[2],geometry[3])
++            pb = pb.get_from_drawable(w,w.get_colormap(),geometry[0],geometry[1],0,0,geometry[2],geometry[3])
+ 
+             self.logger.debug("Rendering Fade")
+             # Convert Pixbuf to PIL Image
+@@ -160,13 +176,13 @@
+             pixmap = None
+     
+         self.window.set_app_paintable(True)
+-        self.window.resize(gtk.gdk.screen_width(), gtk.gdk.screen_height())
++        self.window.resize(geometry[2], geometry[3])
+         self.window.realize()
+                 
+         if pixmap:
+             self.window.window.set_back_pixmap(pixmap, False)
+-        self.window.move(0,0)
+-        
++        self.window.move(geometry[0], geometry[1])
++
+ 
+     def load_config(self, config):
+         """ Load the configuration file and parse entries, when encountering a issue
+@@ -190,8 +206,13 @@
+             else:
+                 self.usehal = True
+ 
+-	    if self.parser.has_option("settings","lock_before_suspend"):
+-		self.lock_before_suspend = self.parser.getboolean("settings","lock_before_suspend")
++            if self.parser.has_option("settings","monitor"):
++                self.mon = self.parser.getint("settings","monitor")
++            else:
++                self.mon = -1
++
++        if self.parser.has_option("settings","lock_before_suspend"):
++            self.lock_before_suspend = self.parser.getboolean("settings","lock_before_suspend")
+             
+         if self.usehal:    
+             from dbushandler import DbusController
+Only in src.new: oblogout-multihead.patch
