@@ -1,6 +1,6 @@
-diff -ru src/oblogout/data/oblogout.conf src.new/oblogout/data/oblogout.conf
---- src/oblogout/data/oblogout.conf	2009-04-11 16:14:27.000000000 +0400
-+++ src.new/oblogout/data/oblogout.conf	2020-05-15 13:51:51.200179000 +0300
+diff -ru src.orig/oblogout/data/oblogout.conf src.new/oblogout/data/oblogout.conf
+--- src.orig/oblogout/data/oblogout.conf	2009-04-11 16:14:27.000000000 +0400
++++ src.new/oblogout/data/oblogout.conf	2020-05-16 10:08:30.618711000 +0300
 @@ -1,5 +1,6 @@
  [settings]
  usehal = true
@@ -8,9 +8,9 @@ diff -ru src/oblogout/data/oblogout.conf src.new/oblogout/data/oblogout.conf
  
  [looks]
  opacity = 70
-diff -ru src/oblogout/oblogout/__init__.py src.new/oblogout/oblogout/__init__.py
---- src/oblogout/oblogout/__init__.py	2020-05-15 15:00:45.679338256 +0300
-+++ src.new/oblogout/oblogout/__init__.py	2020-05-15 14:58:01.027644000 +0300
+diff -ru src.orig/oblogout/oblogout/__init__.py src.new/oblogout/oblogout/__init__.py
+--- src.orig/oblogout/oblogout/__init__.py	2020-05-16 10:07:19.244112419 +0300
++++ src.new/oblogout/oblogout/__init__.py	2020-05-16 10:14:20.074220189 +0300
 @@ -127,13 +127,29 @@
           
          for button in self.button_list:
@@ -62,15 +62,6 @@ diff -ru src/oblogout/oblogout/__init__.py src.new/oblogout/oblogout/__init__.py
  
      def load_config(self, config):
          """ Load the configuration file and parse entries, when encountering a issue
-@@ -176,7 +192,7 @@
-         self.parser.read(config)
-         
-         # Set some safe defaults
--	self.lock_before_suspend = False
-+        self.lock_before_suspend = False
-         self.opacity = 50
-         self.button_theme = "default"
-         self.bgcolor = gtk.gdk.color_parse("black")
 @@ -190,8 +206,13 @@
              else:
                  self.usehal = True
@@ -87,53 +78,4 @@ diff -ru src/oblogout/oblogout/__init__.py src.new/oblogout/oblogout/__init__.py
              
          if self.usehal:    
              from dbushandler import DbusController
-@@ -207,19 +228,19 @@
-                 self.button_theme = self.parser.get("looks", "buttontheme")
-                 
-             if self.parser.has_option("looks", "bgcolor"):  
--            	try:
--                	self.bgcolor = gtk.gdk.color_parse(self.parser.get("looks", "bgcolor"))
-+                try:
-+                    self.bgcolor = gtk.gdk.color_parse(self.parser.get("looks", "bgcolor"))
-                 except:
--                	self.logger.warning(_("Color %s is not a valid color, defaulting to black") % self.parser.get("looks", "bgcolor"))
--                	self.bgcolor = gtk.gdk.color_parse("black")
-+                    self.logger.warning(_("Color %s is not a valid color, defaulting to black") % self.parser.get("looks", "bgcolor"))
-+                    self.bgcolor = gtk.gdk.color_parse("black")
-                 
-             if self.parser.has_option("looks", "opacity"):
-                 blist = self.parser.get("looks", "buttons")
--	    
-+        
-         # Parse shortcuts section and load them into a array for later reference.
--	    if self.parser.has_section("shortcuts"):
--	        self.shortcut_keys = self.parser.items("shortcuts")
--	        self.logger.debug("Shortcut Options: %s" % self.shortcut_keys)
-+        if self.parser.has_section("shortcuts"):
-+            self.shortcut_keys = self.parser.items("shortcuts")
-+            self.logger.debug("Shortcut Options: %s" % self.shortcut_keys)
- 
-          
-         # Parse in commands section of the configuration file. Check for valid keys and set the attribs on self
-@@ -368,8 +389,8 @@
-         elif (data == 'suspend'):
-             self.window.hide()
- 
--	    if(self.lock_before_suspend):
--	        self.__exec_cmd(self.cmd_lock)
-+        if(self.lock_before_suspend):
-+            self.__exec_cmd(self.cmd_lock)
- 
-             if self.usehal:
-                 self.dbus.suspend()
-@@ -380,8 +401,8 @@
-         elif (data == 'hibernate'):
-             self.window.hide()
- 
--	    if(self.lock_before_suspend):
--	        self.__exec_cmd(self.cmd_lock)
-+        if(self.lock_before_suspend):
-+            self.__exec_cmd(self.cmd_lock)
- 
-             if self.usehal:
-                 self.dbus.hibernate()
+Only in src.new: oblogout-multihead.patch
